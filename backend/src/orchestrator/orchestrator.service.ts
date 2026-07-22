@@ -124,18 +124,20 @@ export class OrchestratorService {
     input: unknown,
     fn: () => Promise<T>,
   ): Promise<T> {
+    this.events.emit({ type: 'job:step-start', jobId, timestamp: new Date().toISOString(), step });
     const start = Date.now();
     const output = await fn();
     const durationMs = Date.now() - start;
     const timestamp = new Date().toISOString();
-    this.trace.record({ jobId, step, timestamp, durationMs, input, output });
+    const decision = summarizeDecision(step, output);
+    this.trace.record({ jobId, step, timestamp, durationMs, input, output, decision });
     this.events.emit({
       type: 'job:step',
       jobId,
       timestamp,
       step,
       durationMs,
-      decision: summarizeDecision(step, output),
+      decision,
       tokens: tokensOfStep(step, output),
     });
     return output;

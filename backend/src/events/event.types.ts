@@ -11,6 +11,13 @@ export interface JobProcessingEvent {
   timestamp: string;
 }
 
+export interface JobStepStartEvent {
+  type: 'job:step-start';
+  jobId: string;
+  timestamp: string;
+  step: string;
+}
+
 export interface JobStepEvent {
   type: 'job:step';
   jobId: string;
@@ -50,6 +57,7 @@ export interface MetricsEvent {
 export type PixelArtEvent =
   | JobQueuedEvent
   | JobProcessingEvent
+  | JobStepStartEvent
   | JobStepEvent
   | JobDoneEvent
   | JobFailedEvent

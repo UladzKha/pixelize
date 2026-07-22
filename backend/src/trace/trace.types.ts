@@ -5,4 +5,5 @@ export interface TraceEntry {
   durationMs: number;
   input: unknown;
   output: unknown;
+  decision?: string;
 }

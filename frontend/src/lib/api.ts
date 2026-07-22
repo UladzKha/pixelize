@@ -3,6 +3,7 @@ import type { ResultResponse } from '../types';
 export interface UploadResponse {
   jobId: string;
   status: 'queued';
+  queuePosition: number;
 }
 
 export async function uploadPhoto(file: File): Promise<UploadResponse> {

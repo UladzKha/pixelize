@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { JobsModule } from '../jobs/jobs.module';
 import { TraceModule } from '../trace/trace.module';
+import { QueueModule } from '../queue/queue.module';
 import { ResultController } from './result.controller';
 
 @Module({
-  imports: [JobsModule, TraceModule],
+  imports: [JobsModule, TraceModule, QueueModule],
   controllers: [ResultController],
 })
 export class ResultModule {}

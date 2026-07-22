@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, DragEvent } from 'react';
 import { fetchResult, uploadPhoto } from '../lib/api';
 import { usePixelArtEvents } from '../hooks/usePixelArtEvents';
-import { friendlyStep } from '../lib/steps';
-import type { PixelArtEvent, ResultResponse } from '../types';
+import { agentForStep, friendlyStep } from '../lib/steps';
+import type { PixelArtEvent, ResultResponse, TraceEntry } from '../types';
 import './UploadPage.css';
 
 type Stage =
@@ -14,6 +14,13 @@ type Stage =
   | { kind: 'processing'; jobId: string; step?: string; decision?: string }
   | { kind: 'done'; jobId: string; resultUrl: string; originalUrl: string }
   | { kind: 'failed'; jobId: string; error: string };
+
+interface StepLogEntry {
+  step: string;
+  status: 'running' | 'done';
+  decision?: string;
+  durationMs?: number;
+}
 
 const JOB_STORAGE_KEY = 'pixelize:lastJobId';
 
@@ -46,14 +53,15 @@ function stageFromResult(jobId: string, result: ResultResponse): Stage {
   }
   if (result.status === 'processing') {
     const lastStep = [...result.trace].reverse().find((entry) => entry.step !== 'error');
-    return { kind: 'processing', jobId, step: lastStep?.step };
+    return { kind: 'processing', jobId, step: lastStep?.step, decision: lastStep?.decision };
   }
-  return { kind: 'queued', jobId, position: 0 };
+  return { kind: 'queued', jobId, position: result.queuePosition ?? 0 };
 }
 
 export function UploadPage() {
   const [stage, setStage] = useState<Stage>({ kind: 'idle' });
   const [dragActive, setDragActive] = useState(false);
+  const [stepLog, setStepLog] = useState<StepLogEntry[]>([]);
   const trackedJobId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -62,7 +70,14 @@ export function UploadPage() {
     trackedJobId.current = existing;
     rememberJobId(existing);
     fetchResult(existing)
-      .then((result) => setStage(stageFromResult(existing, result)))
+      .then((result) => {
+        setStage(stageFromResult(existing, result));
+        setStepLog(
+          result.trace
+            .filter((entry: TraceEntry) => entry.step !== 'error')
+            .map((entry) => ({ step: entry.step, status: 'done', decision: entry.decision, durationMs: entry.durationMs })),
+        );
+      })
       .catch(() => {
         forgetJobId();
         trackedJobId.current = null;
@@ -80,8 +95,19 @@ export function UploadPage() {
       case 'job:processing':
         setStage({ kind: 'processing', jobId: event.jobId });
         break;
+      case 'job:step-start':
+        setStage({ kind: 'processing', jobId: event.jobId, step: event.step });
+        setStepLog((log) => [...log, { step: event.step, status: 'running' }]);
+        break;
       case 'job:step':
         setStage({ kind: 'processing', jobId: event.jobId, step: event.step, decision: event.decision });
+        setStepLog((log) =>
+          log.map((entry) =>
+            entry.step === event.step && entry.status === 'running'
+              ? { ...entry, status: 'done', decision: event.decision, durationMs: event.durationMs }
+              : entry,
+          ),
+        );
         break;
       case 'job:done':
         setStage({ kind: 'done', jobId: event.jobId, resultUrl: event.resultUrl, originalUrl: event.originalUrl });
@@ -94,11 +120,12 @@ export function UploadPage() {
 
   const handleFile = useCallback(async (file: File) => {
     setStage({ kind: 'uploading' });
+    setStepLog([]);
     try {
-      const { jobId } = await uploadPhoto(file);
+      const { jobId, queuePosition } = await uploadPhoto(file);
       trackedJobId.current = jobId;
       rememberJobId(jobId);
-      setStage({ kind: 'queued', jobId, position: 0 });
+      setStage({ kind: 'queued', jobId, position: queuePosition });
     } catch (err) {
       setStage({ kind: 'error', message: (err as Error).message });
     }
@@ -108,6 +135,7 @@ export function UploadPage() {
     trackedJobId.current = null;
     forgetJobId();
     setStage({ kind: 'idle' });
+    setStepLog([]);
   }
 
   function onInputChange(event: ChangeEvent<HTMLInputElement>): void {
@@ -180,6 +208,23 @@ export function UploadPage() {
           </div>
           <button onClick={reset}>Upload another</button>
         </>
+      )}
+
+      {stepLog.length > 0 && (
+        <ol className="step-log">
+          {stepLog.map((entry, index) => (
+            <li key={`${entry.step}-${index}`} className={`step-log__item step-log__item--${entry.status}`}>
+              <div className="step-log__header">
+                <span className="step-log__agent">{agentForStep(entry.step)}</span>
+                <span className="step-log__step">{friendlyStep(entry.step)}</span>
+                <span className="step-log__status">
+                  {entry.status === 'running' ? 'running…' : `done${entry.durationMs !== undefined ? ` (${entry.durationMs}ms)` : ''}`}
+                </span>
+              </div>
+              {entry.decision && <p className="step-log__decision">{entry.decision}</p>}
+            </li>
+          ))}
+        </ol>
       )}
     </div>
   );

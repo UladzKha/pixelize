@@ -46,7 +46,9 @@ export class UploadController {
       },
     }),
   )
-  async upload(@UploadedFile() file: Express.Multer.File): Promise<{ jobId: string; status: 'queued' }> {
+  async upload(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ jobId: string; status: 'queued'; queuePosition: number }> {
     if (!file) {
       throw new BadRequestException('file is required');
     }
@@ -65,6 +67,6 @@ export class UploadController {
     this.events.emit({ type: 'job:queued', jobId, timestamp: new Date().toISOString(), queuePosition });
     await this.queue.add('pixelize', { jobId, imagePath });
 
-    return { jobId, status: 'queued' };
+    return { jobId, status: 'queued', queuePosition };
   }
 }

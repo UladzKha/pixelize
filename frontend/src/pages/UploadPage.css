@@ -65,15 +65,39 @@
   gap: 1rem;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
+  width: 100%;
   margin-top: 1.5rem;
 }
 
+.before-after > div {
+  flex: 1 1 300px;
+  max-width: 420px;
+}
+
 .before-after img {
-  width: 11rem;
-  max-width: 40vw;
+  width: 100%;
+  min-width: 300px;
   height: auto;
   border-radius: 0.75rem;
   display: block;
+}
+
+@media (max-width: 680px) {
+  .before-after {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .before-after > div {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .before-after img {
+    min-width: 0;
+  }
 }
 
 .pixel-image {
@@ -85,6 +109,61 @@
   font-size: 0.85rem;
   color: #a3a3b8;
   margin: 0 0 0.35rem;
+}
+
+.step-log {
+  width: 100%;
+  max-width: 26rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.step-log__item {
+  border: 1px solid #2c2c3a;
+  border-radius: 0.75rem;
+  background: #1a1a24;
+  padding: 0.65rem 0.85rem;
+}
+
+.step-log__item--running {
+  border-color: #6cf0c2;
+}
+
+.step-log__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.step-log__agent {
+  font-weight: 600;
+  color: #f2f2f5;
+}
+
+.step-log__step {
+  color: #a3a3b8;
+}
+
+.step-log__status {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #6cf0c2;
+}
+
+.step-log__item--done .step-log__status {
+  color: #8a8aa0;
+}
+
+.step-log__decision {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: #d0d0dc;
 }
 
 .upload-page button {

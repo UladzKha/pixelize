@@ -7,6 +7,7 @@ export interface TraceEntry {
   durationMs: number;
   input: unknown;
   output: unknown;
+  decision?: string;
 }
 
 export interface ResultResponse {
@@ -15,6 +16,7 @@ export interface ResultResponse {
   originalUrl: string;
   error?: string;
   trace: TraceEntry[];
+  queuePosition?: number;
 }
 
 export interface TokenUsage {
@@ -33,6 +35,13 @@ export interface JobProcessingEvent {
   type: 'job:processing';
   jobId: string;
   timestamp: string;
+}
+
+export interface JobStepStartEvent {
+  type: 'job:step-start';
+  jobId: string;
+  timestamp: string;
+  step: string;
 }
 
 export interface JobStepEvent {
@@ -74,6 +83,7 @@ export interface MetricsEvent {
 export type PixelArtEvent =
   | JobQueuedEvent
   | JobProcessingEvent
+  | JobStepStartEvent
   | JobStepEvent
   | JobDoneEvent
   | JobFailedEvent
