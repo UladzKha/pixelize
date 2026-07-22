@@ -1,0 +1,100 @@
+.upload-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 1rem 3rem;
+  background: #12121a;
+  color: #f2f2f5;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.upload-page h1 {
+  font-size: 1.5rem;
+  margin: 0.5rem 0 2rem;
+  letter-spacing: 0.02em;
+}
+
+.dropzone {
+  width: 100%;
+  max-width: 24rem;
+  min-height: 55dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border: 2px dashed #4a4a5e;
+  border-radius: 1.25rem;
+  background: #1a1a24;
+  font-size: 1.1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dropzone--active {
+  border-color: #6cf0c2;
+  background: #1e2b26;
+}
+
+.dropzone__icon {
+  font-size: 3rem;
+}
+
+.status {
+  margin-top: 2rem;
+  font-size: 1.15rem;
+  text-align: center;
+  max-width: 26rem;
+}
+
+.status--error {
+  color: #ff8a8a;
+}
+
+.status__detail {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #a3a3b8;
+}
+
+.before-after {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.before-after img {
+  width: 11rem;
+  max-width: 40vw;
+  height: auto;
+  border-radius: 0.75rem;
+  display: block;
+}
+
+.pixel-image {
+  image-rendering: pixelated;
+}
+
+.before-after__label {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #a3a3b8;
+  margin: 0 0 0.35rem;
+}
+
+.upload-page button {
+  margin-top: 1.75rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 999px;
+  border: none;
+  background: #6cf0c2;
+  color: #0d0d12;
+  font-weight: 600;
+  cursor: pointer;
+}

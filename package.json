@@ -1,0 +1,14 @@
+{
+  "name": "agentic-demo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "stress-test": "node scripts/stress-test.mts"
+  }
+}

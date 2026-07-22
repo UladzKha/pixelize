@@ -1,0 +1,43 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    network_mode: host
+    environment:
+      REDIS_URL: ${REDIS_URL:-redis://localhost:6379}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://localhost:11436}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3.6:27b-mtp-q4_K_M}
+      QUALITY_GATE_VARIANT: ${QUALITY_GATE_VARIANT:-deterministic}
+      UPLOAD_MAX_SIZE_MB: ${UPLOAD_MAX_SIZE_MB:-10}
+      JOB_TIMEOUT_MS: ${JOB_TIMEOUT_MS:-120000}
+      CLEANUP_MAX_AGE_MS: ${CLEANUP_MAX_AGE_MS:-3600000}
+      CLEANUP_INTERVAL_MS: ${CLEANUP_INTERVAL_MS:-300000}
+      LAN_IP: ${LAN_IP:-auto}
+      FRONTEND_PORT: ${FRONTEND_PORT:-5173}
+    volumes:
+      - ./backend/src:/app/backend/src
+      - /tmp/uploads:/tmp/uploads
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    network_mode: host
+    volumes:
+      - ./frontend/src:/app/frontend/src
+    depends_on:
+      - backend

@@ -1,0 +1,100 @@
+{
+  "timestamp": "2026-07-21T07:49:23.166Z",
+  "backendUrl": "http://localhost:3000",
+  "concurrency": 10,
+  "wallClockMs": 252813,
+  "summary": {
+    "total": 10,
+    "done": 10,
+    "failed": 0,
+    "timedOut": 0,
+    "uploadErrors": 0
+  },
+  "durations": {
+    "minMs": 18140,
+    "avgMs": 135065.5,
+    "maxMs": 252792
+  },
+  "jobs": [
+    {
+      "index": 0,
+      "status": "done",
+      "jobId": "4610bdf5-d8c2-4884-aad6-f4da0bf904a2",
+      "uploadMs": 86,
+      "totalMs": 18140,
+      "retries": 0
+    },
+    {
+      "index": 1,
+      "status": "done",
+      "jobId": "36aa6a9f-ac7e-4467-8cd8-35eefceb5e94",
+      "uploadMs": 75,
+      "totalMs": 36184,
+      "retries": 4
+    },
+    {
+      "index": 2,
+      "status": "done",
+      "jobId": "19f126ff-2258-48bf-aad9-c75e711e439c",
+      "uploadMs": 75,
+      "totalMs": 70281,
+      "retries": 0
+    },
+    {
+      "index": 3,
+      "status": "done",
+      "jobId": "3fb3823f-fdb9-4733-aee8-bb9b988af53a",
+      "uploadMs": 74,
+      "totalMs": 78304,
+      "retries": 0
+    },
+    {
+      "index": 4,
+      "status": "done",
+      "jobId": "5626a70c-d8ef-496a-94d7-5252b0cc55e6",
+      "uploadMs": 73,
+      "totalMs": 124441,
+      "retries": 4
+    },
+    {
+      "index": 5,
+      "status": "done",
+      "jobId": "134afd29-168e-437d-97ee-47db11d8eb37",
+      "uploadMs": 73,
+      "totalMs": 136476,
+      "retries": 0
+    },
+    {
+      "index": 6,
+      "status": "done",
+      "jobId": "93049c67-247c-4336-8500-a63fdc13e8c3",
+      "uploadMs": 72,
+      "totalMs": 186615,
+      "retries": 2
+    },
+    {
+      "index": 7,
+      "status": "done",
+      "jobId": "50978221-6afd-4965-a6fd-53b65cecb1da",
+      "uploadMs": 70,
+      "totalMs": 212681,
+      "retries": 0
+    },
+    {
+      "index": 8,
+      "status": "done",
+      "jobId": "d996f2d1-0b36-4241-9a5c-d53b510eb8b9",
+      "uploadMs": 70,
+      "totalMs": 234741,
+      "retries": 4
+    },
+    {
+      "index": 9,
+      "status": "done",
+      "jobId": "084b69a5-227c-41c7-b2b5-a02a715456d0",
+      "uploadMs": 69,
+      "totalMs": 252792,
+      "retries": 0
+    }
+  ]
+}
