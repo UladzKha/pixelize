@@ -20,9 +20,13 @@ export interface OllamaChatResult {
 
 /** Calls Ollama's /api/chat with constrained JSON output and returns the message content plus token usage. */
 export async function ollamaChatJson(options: OllamaChatOptions): Promise<OllamaChatResult> {
-  const { baseUrl, model, prompt, images, timeoutMs = 60000 } = options;
+  const { baseUrl, model, prompt, images, timeoutMs = 120000 } = options;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
 
   try {
     const res = await fetch(`${baseUrl}/api/chat`, {
@@ -47,6 +51,15 @@ export async function ollamaChatJson(options: OllamaChatOptions): Promise<Ollama
       throw new Error('Ollama response missing message.content');
     }
     return { content, promptEvalCount: body.prompt_eval_count, evalCount: body.eval_count };
+  } catch (err) {
+    // Convert the AbortController firing into a clear, actionable message instead of
+    // the cryptic DOMException "This operation was aborted".
+    if (timedOut || (err as { name?: string })?.name === 'AbortError') {
+      throw new Error(
+        `Ollama request timed out after ${timeoutMs}ms (model "${model}" may be cold-loading into VRAM or the image is too large)`,
+      );
+    }
+    throw err;
   } finally {
     clearTimeout(timeout);
   }

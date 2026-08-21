@@ -1,8 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
+import sharp from 'sharp';
 import { ollamaChatJson } from './ollama.client';
 import { validateVisionResult, VisionResult } from './vision.types';
+
+/** Max long-edge (px) sent to the vision model. Full-res phone photos are needlessly slow to process. */
+const VISION_MAX_EDGE = 1024;
 
 const BASE_PROMPT = `You are an image analysis agent in a pixel art conversion pipeline.
 Analyze the attached photo and respond with ONLY valid JSON, no markdown fences, no commentary.
@@ -36,9 +39,15 @@ export class VisionAnalysisAgent {
   async analyze(imagePath: string): Promise<VisionAnalysisResult> {
     const baseUrl = this.config.get<string>('OLLAMA_BASE_URL', 'http://localhost:11436');
     const model = this.config.get<string>('OLLAMA_MODEL', 'qwen3.6:27b-mtp-q4_K_M');
-    const image = fs.readFileSync(imagePath).toString('base64');
+    const timeoutMs = Number(this.config.get('OLLAMA_TIMEOUT_MS', 120000));
+    const image = (
+      await sharp(imagePath)
+        .resize({ width: VISION_MAX_EDGE, height: VISION_MAX_EDGE, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: 85 })
+        .toBuffer()
+    ).toString('base64');
 
-    const first = await ollamaChatJson({ baseUrl, model, prompt: BASE_PROMPT, images: [image] });
+    const first = await ollamaChatJson({ baseUrl, model, prompt: BASE_PROMPT, images: [image], timeoutMs });
     let parseError: string;
     try {
       return {
@@ -57,7 +66,7 @@ export class VisionAnalysisAgent {
 Your previous response was invalid JSON for this schema: ${parseError}
 Previous response: ${first.content}
 Respond again with ONLY the corrected JSON object.`;
-    const second = await ollamaChatJson({ baseUrl, model, prompt: retryPrompt, images: [image] });
+    const second = await ollamaChatJson({ baseUrl, model, prompt: retryPrompt, images: [image], timeoutMs });
 
     let data = {
       recommended_style: 'nes-flat' as const,

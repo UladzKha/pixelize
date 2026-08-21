@@ -62,6 +62,7 @@ export function UploadPage() {
   const [stage, setStage] = useState<Stage>({ kind: 'idle' });
   const [dragActive, setDragActive] = useState(false);
   const [stepLog, setStepLog] = useState<StepLogEntry[]>([]);
+  const [queueTotal, setQueueTotal] = useState<number | null>(null);
   const trackedJobId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -85,7 +86,10 @@ export function UploadPage() {
   }, []);
 
   usePixelArtEvents((event: PixelArtEvent) => {
-    if (event.type === 'metrics') return;
+    if (event.type === 'metrics') {
+      setQueueTotal(event.queueLength + event.activeJobs);
+      return;
+    }
     if (event.jobId !== trackedJobId.current) return;
 
     switch (event.type) {
@@ -177,7 +181,14 @@ export function UploadPage() {
       {stage.kind === 'uploading' && <p className="status">Uploading…</p>}
 
       {stage.kind === 'queued' && (
-        <p className="status">In queue{stage.position ? ` — position ${stage.position}` : ''}</p>
+        <p className="status">
+          In queue{stage.position ? ` — position ${stage.position}` : ''}
+          {queueTotal != null && (
+            <span className="status__detail">
+              {queueTotal} {queueTotal === 1 ? 'image' : 'images'} in line
+            </span>
+          )}
+        </p>
       )}
 
       {stage.kind === 'processing' && (

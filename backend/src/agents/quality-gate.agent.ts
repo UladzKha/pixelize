@@ -112,9 +112,10 @@ export class QualityGateAgent {
   private async evaluateWithLlm(resultImagePath: string): Promise<QualityResult> {
     const baseUrl = this.config.get<string>('OLLAMA_BASE_URL', 'http://localhost:11436');
     const model = this.config.get<string>('OLLAMA_MODEL', 'qwen3.6:27b-mtp-q4_K_M');
+    const timeoutMs = Number(this.config.get('OLLAMA_TIMEOUT_MS', 120000));
     const image = fs.readFileSync(resultImagePath).toString('base64');
 
-    const chatResult = await ollamaChatJson({ baseUrl, model, prompt: LLM_QUALITY_PROMPT, images: [image] });
+    const chatResult = await ollamaChatJson({ baseUrl, model, prompt: LLM_QUALITY_PROMPT, images: [image], timeoutMs });
     const parsed = validateLlmQualityResult(JSON.parse(chatResult.content));
 
     return {
